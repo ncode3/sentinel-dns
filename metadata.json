@@ -1,0 +1,5 @@
+{
+  "name": "DNS Sentinel",
+  "description": "An autonomous AI-driven DNS defense system. It detects outages via global probes, analyzes root causes with Gemini 2.5 Flash, and automatically reroutes traffic using serverless infrastructure.",
+  "requestFramePermissions": []
+}
