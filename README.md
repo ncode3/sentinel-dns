@@ -21,7 +21,7 @@ When a major DNS provider (like Route53 or Cloudflare) fails, the "Human Lag"—
 ## 🏗️ Architecture
 
 ![Architecture Diagram](./docs/architecture.png)
-*(Note: Ensure you upload your Nano Banana diagram to a /docs folder and link it here)*
+
 
 The system operates on a **Sense-Think-Act** loop:
 
