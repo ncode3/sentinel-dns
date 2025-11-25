@@ -9,7 +9,7 @@
 ## 📺 Demo & Presentation
 * **Live Demo:** [Link to your Cloud Run URL]
 * **Video Walkthrough:** [Link to your YouTube Video]
-* **Slide Deck:** [Link to your Slide Deck PDF]
+* **Slide Deck:** [(https://docs.google.com/presentation/d/1Sgn9P_J6Y_C9a-OFYzzjhzyFTRYH9QluSJLvw-bwwv8/edit?usp=sharing)]
 
 ---
 
