@@ -14,7 +14,7 @@
 ---
 
 ## 🧐 The Problem
-When a major DNS provider (like Route53 or Cloudflare) fails, the "Human Lag"—the time between the alert firing and an engineer waking up to fix it—costs millions. 
+When a major DNS provider (like Route53 or Cloudflare) fails, the "Human Lag"—the time between the alert firing and an engineer waking up to fix it, costs millions. 
 
 **Project Sentinel** eliminates this lag. It is an **Autonomous Site Reliability Engineer (SRE)** that lives outside the blast radius, monitoring the internet's "ground truth" and executing repairs automatically.
 
@@ -27,7 +27,7 @@ The system operates on a **Sense-Think-Act** loop:
 
 1.  **The Watcher (Sensing):** A distributed fleet of Python probes running in `us-central1`, `europe-west1`, and `asia-east1`. They act as the "eyes," bypassing local ISP caches to measure authoritative DNS health.
 2.  **The Brain (Reasoning):** A **Vertex AI (Gemini 1.5 Pro)** agent. It ingests a sliding window of telemetry from BigQuery and uses **RAG (Retrieval Augmented Generation)** to consult "Outage Playbooks" before making a decision.
-3.  **The Hammer (Action):** A privileged Cloud Function that executes the "DNS Surgery"—updating the authoritative nameservers via API to reroute global traffic.
+3.  **The Hammer (Action):** A privileged Cloud Function that executes the "DNS Surgery" updating the authoritative nameservers via API to reroute global traffic.
 
 ---
 
