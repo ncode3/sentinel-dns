@@ -2,11 +2,24 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Region } from '../types';
 
+/**
+ * Props for the NetworkMap component.
+ */
 interface Props {
+  /** Array of region data to visualize */
   regions: Region[];
+  /** Whether chaos mode is currently active */
   isChaos: boolean;
 }
 
+/**
+ * D3-powered network visualization showing probe nodes and their connections.
+ * Displays real-time latency data with animated packet flow.
+ * 
+ * @param props - Component props
+ * @param props.regions - Array of region data with latency info
+ * @param props.isChaos - Whether to show error states
+ */
 export const NetworkMap: React.FC<Props> = ({ regions, isChaos }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

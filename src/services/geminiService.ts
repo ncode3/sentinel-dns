@@ -1,9 +1,19 @@
+/**
+ * Gemini AI Service for DNS Sentinel.
+ * Provides system health analysis using Google's Gemini model.
+ * @module services/geminiService
+ */
+
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { GeminiAnalysisResult, Region } from "../types";
 
 const apiKey = process.env.API_KEY || "mock_key_for_demo"; 
 const ai = new GoogleGenAI({ apiKey });
 
+/**
+ * JSON schema for structured Gemini responses.
+ * Ensures consistent output format for infrastructure decisions.
+ */
 const responseSchema: Schema = {
   type: Type.OBJECT,
   properties: {
@@ -14,6 +24,27 @@ const responseSchema: Schema = {
   required: ['status', 'reasoning', 'recommendedAction']
 };
 
+/**
+ * Analyzes system health using Gemini AI.
+ * 
+ * This function sends DNS probe telemetry to Gemini for analysis.
+ * The AI evaluates latency patterns and determines if remediation is needed.
+ * Falls back to local heuristics if the API is unavailable.
+ * 
+ * @param regions - Array of region data with latency and status
+ * @returns Promise resolving to the analysis result
+ * 
+ * @example
+ * ```ts
+ * const regions = [
+ *   { id: 'us-central1', name: 'US', latency: 500, status: 'DEGRADED' },
+ *   { id: 'europe-west1', name: 'EU', latency: 800, status: 'TIMEOUT' }
+ * ];
+ * const result = await analyzeSystemHealth(regions);
+ * // result.status === 'CRITICAL'
+ * // result.recommendedAction === 'FAILOVER'
+ * ```
+ */
 export const analyzeSystemHealth = async (regions: Region[]): Promise<GeminiAnalysisResult> => {
   // In a real scenario without the API key, we mock the response to keep the UI functional for the demo.
   if (apiKey === "mock_key_for_demo") {
@@ -57,7 +88,13 @@ export const analyzeSystemHealth = async (regions: Region[]): Promise<GeminiAnal
   }
 };
 
-// Local fallback "Brain" for when API key is missing in demo
+/**
+ * Local fallback "Brain" for when the Gemini API is unavailable.
+ * Uses simple heuristics based on latency thresholds.
+ * 
+ * @param regions - Array of region data with latency and status
+ * @returns Analysis result based on local heuristics
+ */
 const mockGeminiResponse = (regions: Region[]): GeminiAnalysisResult => {
   const criticalCount = regions.filter(r => r.status === 'TIMEOUT' || r.latency > 400).length;
   

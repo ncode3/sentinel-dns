@@ -2,11 +2,24 @@ import React from 'react';
 import { SentinelState } from '../types';
 import { Sparkles, Loader } from 'lucide-react';
 
+/**
+ * Props for the GeminiAnalysis component.
+ */
 interface Props {
+  /** The latest analysis text from Gemini */
   analysis: string | null;
+  /** Current state of the sentinel agent */
   state: SentinelState;
 }
 
+/**
+ * Displays AI analysis results from the Gemini model.
+ * Shows a loading state while analyzing and the reasoning output.
+ * 
+ * @param props - Component props
+ * @param props.analysis - The analysis text to display
+ * @param props.state - Current sentinel state for loading indicator
+ */
 export const GeminiAnalysis: React.FC<Props> = ({ analysis, state }) => {
   if (!analysis && state !== 'ANALYZING') {
     return (

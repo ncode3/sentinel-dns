@@ -1,158 +1,30 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Activity, Shield, ShieldAlert, Server, Globe, Zap, Terminal, Play, Square } from 'lucide-react';
+import React from 'react';
+import { Activity, Shield, Server, Globe, Zap, Terminal, Play, Square } from 'lucide-react';
 import { DashboardLayout } from './components/DashboardLayout';
 import { NetworkMap } from './components/NetworkMap';
 import { LatencyChart } from './components/LatencyChart';
 import { EventLog } from './components/EventLog';
 import { SystemStatus } from './components/SystemStatus';
 import { GeminiAnalysis } from './components/GeminiAnalysis';
-import { analyzeSystemHealth } from './services/geminiService';
-import { ProbeData, SystemLog, SentinelState, Region, RegionStatus } from './types';
-import { INITIAL_LOGS, MOCK_REGIONS } from './constants';
+import { useSimulation } from './hooks/useSimulation';
+import { MOCK_REGIONS } from './constants';
 
+/**
+ * Main application component for the DNS Sentinel dashboard.
+ * Orchestrates the UI and delegates simulation logic to the useSimulation hook.
+ */
 const App: React.FC = () => {
-  // System State
-  const [isActive, setIsActive] = useState(false);
-  const [isChaosMode, setIsChaosMode] = useState(false);
-  const [primaryRouteHealthy, setPrimaryRouteHealthy] = useState(true);
-  const [logs, setLogs] = useState<SystemLog[]>(INITIAL_LOGS);
-  const [probeHistory, setProbeHistory] = useState<ProbeData[]>([]);
-  const [lastAnalysis, setLastAnalysis] = useState<string | null>(null);
-  const [sentinelState, setSentinelState] = useState<SentinelState>('IDLE');
-  
-  // Refs for simulation loop
-  const intervalRef = useRef<number | null>(null);
-  const chaosRef = useRef(isChaosMode);
-  const primaryRouteRef = useRef(primaryRouteHealthy);
-
-  // Sync refs
-  useEffect(() => { chaosRef.current = isChaosMode; }, [isChaosMode]);
-  useEffect(() => { primaryRouteRef.current = primaryRouteHealthy; }, [primaryRouteHealthy]);
-
-  const addLog = (source: SystemLog['source'], message: string, type: SystemLog['type'] = 'info') => {
-    const newLog: SystemLog = {
-      id: Date.now().toString() + Math.random(),
-      timestamp: new Date(),
-      source,
-      message,
-      type
-    };
-    setLogs(prev => [newLog, ...prev].slice(0, 50));
-  };
-
-  // Simulation Engine
-  const runSimulationTick = useCallback(async () => {
-    const timestamp = new Date().toISOString();
-    const isChaos = chaosRef.current;
-    const isHealed = !primaryRouteRef.current && !isChaos; // If chaos is off but route is marked unhealthy (healing phase)
-    
-    // 1. THE WATCHER: Generate Probe Data
-    const newProbeData: ProbeData = {
-      timestamp,
-      regions: MOCK_REGIONS.map(r => {
-        let latency = Math.floor(Math.random() * 40) + 20; // Base 20-60ms
-        let status: RegionStatus = 'HEALTHY';
-
-        if (isChaos) {
-          // Simulate partial or total failure
-          if (r.id === 'us-central1' || r.id === 'europe-west1') {
-            latency = Math.floor(Math.random() * 2000) + 500; // High latency
-            if (Math.random() > 0.7) status = 'TIMEOUT';
-            else status = 'DEGRADED';
-          }
-        } else if (!primaryRouteRef.current) {
-          // We are on backup route (simulated)
-           latency += 10; // Backup route slightly slower
-        }
-
-        return { ...r, latency, status };
-      })
-    };
-
-    setProbeHistory(prev => [...prev.slice(-19), newProbeData]);
-
-    // 2. THE BRAIN: Analyze with Gemini
-    // We throttle AI calls to avoid rate limits in this demo loop, calling every 3rd tick or if chaos just started
-    const shouldAnalyze = isChaos || !primaryRouteRef.current; 
-    
-    if (shouldAnalyze) {
-      setSentinelState('ANALYZING');
-      try {
-        // In a real app, we'd send the JSON data. Here we simulate the payload structure.
-        const analysisResult = await analyzeSystemHealth(newProbeData.regions);
-        setLastAnalysis(analysisResult.reasoning);
-
-        if (analysisResult.status === 'CRITICAL' && primaryRouteRef.current) {
-          addLog('BRAIN', `Gemini detected anomaly: ${analysisResult.reasoning}`, 'error');
-          setSentinelState('REMEDIATING');
-          
-          // 3. THE HAMMER: trigger failover
-          setTimeout(() => {
-            addLog('HAMMER', 'Initiating Route Failover Protocol...', 'warning');
-            triggerFailover();
-          }, 1500);
-        } else if (analysisResult.status === 'HEALTHY' && !primaryRouteRef.current && !isChaos) {
-          // Auto-healing check
-           addLog('BRAIN', 'Metrics stabilized. Suggesting return to primary.', 'success');
-           setSentinelState('MONITORING');
-        } else {
-          setSentinelState('MONITORING');
-        }
-
-      } catch (error) {
-        console.error("Gemini API Error", error);
-        addLog('BRAIN', 'AI Analysis failed: connection error', 'error');
-      }
-    } else {
-      setSentinelState('MONITORING');
-    }
-
-  }, []);
-
-  // failover logic
-  const triggerFailover = () => {
-    setPrimaryRouteHealthy(false); // Switch to "Backup" logic in simulation
-    addLog('HAMMER', 'Cloud DNS Record Updated: @ 192.0.2.1 -> 203.0.113.5 (Backup Provider)', 'success');
-    addLog('HAMMER', 'TTL Flushed. Propagation started.', 'info');
-    setSentinelState('RECOVERED');
-  };
-
-  const toggleSimulation = () => {
-    if (isActive) {
-      setIsActive(false);
-      if (intervalRef.current) window.clearInterval(intervalRef.current);
-      setSentinelState('IDLE');
-      addLog('SYSTEM', 'Sentinel deactivated.', 'info');
-    } else {
-      setIsActive(true);
-      setSentinelState('MONITORING');
-      addLog('SYSTEM', 'Sentinel activated. Monitoring global latency.', 'success');
-    }
-  };
-
-  const toggleChaos = () => {
-    const newState = !isChaosMode;
-    setIsChaosMode(newState);
-    if (newState) {
-      addLog('SYSTEM', 'CHAOS INJECTED: Simulating Primary DNS Failure', 'error');
-    } else {
-      addLog('SYSTEM', 'Chaos stopped. Systems stabilizing.', 'info');
-      // Reset route health after chaos stops for demo purposes
-      setTimeout(() => {
-        setPrimaryRouteHealthy(true);
-        addLog('HAMMER', 'Primary route confirmed stable. Reverting DNS.', 'success');
-      }, 3000);
-    }
-  };
-
-  useEffect(() => {
-    if (isActive) {
-      intervalRef.current = window.setInterval(runSimulationTick, 2000);
-    }
-    return () => {
-      if (intervalRef.current) window.clearInterval(intervalRef.current);
-    };
-  }, [isActive, runSimulationTick]);
+  const {
+    isActive,
+    isChaosMode,
+    primaryRouteHealthy,
+    sentinelState,
+    logs,
+    probeHistory,
+    lastAnalysis,
+    toggleSimulation,
+    toggleChaos,
+  } = useSimulation();
 
   return (
     <DashboardLayout>
