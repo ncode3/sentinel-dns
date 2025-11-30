@@ -2,10 +2,21 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ProbeData } from '../types';
 
+/**
+ * Props for the LatencyChart component.
+ */
 interface Props {
+  /** Array of probe data to visualize */
   data: ProbeData[];
 }
 
+/**
+ * Real-time latency chart showing probe data across all regions.
+ * Uses Recharts for responsive, animated line visualization.
+ * 
+ * @param props - Component props
+ * @param props.data - Array of probe data points
+ */
 export const LatencyChart: React.FC<Props> = ({ data }) => {
   // Transform data for Recharts
   const chartData = data.map(d => ({

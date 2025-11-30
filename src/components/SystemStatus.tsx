@@ -1,12 +1,25 @@
 import React from 'react';
 import { SentinelState } from '../types';
 
-interface Props {
+/**
+ * Props for the SystemStatus component.
+ */
+export interface SystemStatusProps {
+  /** Whether the primary DNS route is healthy */
   isPrimary: boolean;
+  /** Current operational state of the sentinel */
   state: SentinelState;
 }
 
-export const SystemStatus: React.FC<Props> = ({ isPrimary, state }) => {
+/**
+ * Displays the current system status including active DNS route
+ * and operational state of the sentinel agent.
+ * 
+ * @param props - Component props
+ * @param props.isPrimary - Whether using primary or backup route
+ * @param props.state - Current sentinel state
+ */
+export const SystemStatus: React.FC<SystemStatusProps> = ({ isPrimary, state }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded border border-slate-700">

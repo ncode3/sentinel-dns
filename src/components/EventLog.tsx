@@ -1,10 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import { SystemLog } from '../types';
 
+/**
+ * Props for the EventLog component.
+ */
 interface Props {
+  /** Array of log entries to display */
   logs: SystemLog[];
 }
 
+/**
+ * Displays system and remediation logs in a terminal-style interface.
+ * Auto-scrolls to show the latest entries.
+ * 
+ * @param props - Component props
+ * @param props.logs - Array of system log entries
+ */
 export const EventLog: React.FC<Props> = ({ logs }) => {
   const endRef = useRef<HTMLDivElement>(null);
 
