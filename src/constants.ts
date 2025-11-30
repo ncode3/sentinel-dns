@@ -21,7 +21,7 @@ export const MOCK_REGIONS: Region[] = [
 export const INITIAL_LOGS: SystemLog[] = [
   { id: '0', timestamp: new Date(), source: 'SYSTEM', message: 'Sentinel Core initialized.', type: 'info' },
   { id: '1', timestamp: new Date(), source: 'WATCHER', message: 'Probe configuration loaded: 3 Regions.', type: 'info' },
-  { id: '2', timestamp: new Date(), source: 'BRAIN', message: 'Connected to Vertex AI (Gemini 1.5 Pro).', type: 'info' },
+  { id: '2', timestamp: new Date(), source: 'BRAIN', message: 'Connected to Vertex AI (Gemini 2.5 Flash).', type: 'info' },
 ];
 
 /**

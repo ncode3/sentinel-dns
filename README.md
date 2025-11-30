@@ -27,7 +27,7 @@ When a major DNS provider (like Route53 or Cloudflare) fails, the "Human Lag"—
 The system operates on a **Sense-Think-Act** loop:
 
 1.  **The Watcher (Sensing):** A distributed fleet of Python probes running in `us-central1`, `europe-west1`, and `asia-east1`. They act as the "eyes," bypassing local ISP caches to measure authoritative DNS health.
-2.  **The Brain (Reasoning):** A **Vertex AI (Gemini 1.5 Pro)** agent. It ingests a sliding window of telemetry from BigQuery and uses **RAG (Retrieval Augmented Generation)** to consult "Outage Playbooks" before making a decision.
+2.  **The Brain (Reasoning):** A **Vertex AI (Gemini 2.5 Flash)** agent. It ingests a sliding window of telemetry from BigQuery and uses **RAG (Retrieval Augmented Generation)** to consult "Outage Playbooks" before making a decision.
 3.  **The Hammer (Action):** A privileged Cloud Function that executes the "DNS Surgery" updating the authoritative nameservers via API to reroute global traffic.
 
 ---
@@ -50,7 +50,7 @@ The Brain component uses Retrieval Augmented Generation to enhance decision-maki
 - **Knowledge Base**: Outage playbooks and historical incident data stored in a vector database
 - **Retrieval**: When an anomaly is detected, relevant playbooks are retrieved based on semantic similarity
 - **Augmentation**: Retrieved context is injected into the prompt to provide domain-specific guidance
-- **Generation**: Gemini 1.5 Pro generates actionable decisions based on current metrics + historical knowledge
+- **Generation**: Gemini 2.5 Flash generates actionable decisions based on current metrics + historical knowledge
 
 ### Prompt Engineering Approach
 Our prompts are designed with the following principles:

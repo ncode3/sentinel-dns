@@ -70,7 +70,7 @@ terraform apply -var="project_id=your-project-id"
 | `project_id` | GCP Project ID | (required) |
 | `region` | Primary deployment region | `us-central1` |
 | `watcher_regions` | Regions for Watcher deployment | `["us-central1", "europe-west1", "asia-east1"]` |
-| `gemini_model` | Gemini model to use | `gemini-1.5-pro` |
+| `gemini_model` | Gemini model to use | `gemini-2.5-flash` |
 
 ## Cost Estimate
 
